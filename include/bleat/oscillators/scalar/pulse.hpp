@@ -7,7 +7,7 @@ namespace oscillators {
 namespace scalar {
 
 /*
- * Based on oscillator code from madronalabs/madronablib
+ * Based on oscillator code from madronalabs/madronalib
 */
 
 // input: phasor on (0, 1), normalized freq, pulse width

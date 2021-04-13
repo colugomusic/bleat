@@ -9,7 +9,7 @@ namespace oscillators {
 namespace scalar {
 
 /*
- * Based on phasor code from madronalabs/madronablib
+ * Based on phasor code from madronalabs/madronalib
 */
 
 class Phasor
