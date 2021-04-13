@@ -124,7 +124,7 @@ double exp_helper(const double r) {
 // exp(r) = e^r = 1 + r + r^2/2 + r^3/6 + r^4/24 + r^5/120
 constexpr
 double exp(const double x) {
-  return pow(M_E,nearest(x)) * exp_helper(fraction(x));
+  return pow(M_E,static_cast<int>(nearest(x))) * exp_helper(fraction(x));
 }
 
 constexpr

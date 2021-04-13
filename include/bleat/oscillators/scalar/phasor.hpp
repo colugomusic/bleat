@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <bleat/third_party/const_math.hpp>
-#include <polyBLEP.hpp>
+#include "polyBLEP.hpp"
 
 namespace bleat {
 namespace oscillators {
