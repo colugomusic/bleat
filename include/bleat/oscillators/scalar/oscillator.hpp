@@ -14,7 +14,8 @@ class Oscillator
 
 protected:
 
-	float calculate(std::function<float(float)> calculator, float freq, float sync = -1.0f)
+	template <typename Fn>
+	float calculate(Fn calculator, float freq, float sync = -1.0f)
 	{
 		return (value_ = calculator(phasor_(freq, sync)));
 	}
