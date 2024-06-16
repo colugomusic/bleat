@@ -1,6 +1,7 @@
 #pragma once
 
 #include "oscillator.hpp"
+#include "polyBLEP.hpp"
 
 namespace bleat {
 namespace oscillators {

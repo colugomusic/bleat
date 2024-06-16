@@ -1,74 +1,48 @@
 #pragma once
 
 #include <cstdint>
-#include <bleat/third_party/const_math.hpp>
-#include "polyBLEP.hpp"
+#include "../../const_math.hpp"
 
 namespace bleat {
 namespace oscillators {
 namespace scalar {
 
-/*
- * Based on phasor code from madronalabs/madronalib
-*/
-
-class Phasor
-{
-	std::int32_t phase_ = 0;
-	bool up_ = false;
-	float sync_;
-
-	void update_phase(std::int32_t inc, float sync)
-	{
-		if (sync > 0.0f)
-		{
-			phase_ = std::int32_t(sync * inc);
+struct Phasor {
+	static constexpr auto STEPS_PER_CYCLE = ::const_math::pow(2.0f, 32);
+	static constexpr auto MIDPOINT        = STEPS_PER_CYCLE / 2;
+	static constexpr auto CYCLES_PER_STEP = 1 / STEPS_PER_CYCLE;
+	static constexpr auto MIDPOINT_INT    = static_cast<uint32_t>(MIDPOINT);
+	auto reset() -> void {
+		phase_ = 0;
+	}
+	auto sync_out() const -> float {
+		return sync_out_;
+	}
+	auto operator()(float cycles_per_frame, float sync_in = -1.0f) -> float {
+		const auto steps_per_sample     = cycles_per_frame * STEPS_PER_CYCLE;
+		const auto inc                  = static_cast<uint32_t>(steps_per_sample);
+		const auto prev_phase           = phase_;
+		update_phase(inc, sync_in);
+		update_sync_value(prev_phase, inc);
+		return static_cast<float>(phase_) * CYCLES_PER_STEP;
+	}
+private:
+	uint32_t phase_ = 0;
+	float sync_out_ = -1.0f;
+	auto update_phase(uint32_t inc, float sync_in) -> void {
+		if (sync_in > 0.0f) {
+			phase_ = MIDPOINT_INT + uint32_t(sync_in * inc);
 		}
-		else
-		{
+		else {
 			phase_ += inc;
 		}
 	}
-
-	void update_sync_value(std::int32_t prev_phase, std::int32_t inc)
-	{
-		if (prev_phase <= 0 && phase_ >= 0)
-		{
-			sync_ = float(phase_) / inc;
+	auto update_sync_value(uint32_t prev_phase, uint32_t inc) -> void {
+		if (prev_phase < MIDPOINT && phase_ >= MIDPOINT) {
+			sync_out_ = float(phase_ - MIDPOINT) / inc;
 			return;
 		}
-
-		sync_ = -1.0f;
-	}
-
-public:
-
-	void reset()
-	{
-		phase_ = 0;
-		up_ = false;
-	}
-
-	float sync() const
-	{
-		return sync_;
-	}
-
-	float operator()(float cyclesPerSample, float sync = -1.0f)
-	{
-		constexpr float steps_per_cycle(static_cast<float>(const_math::pow(2., 32)));
-		constexpr float cycles_per_step(1.f / steps_per_cycle);
-
-		// calculate int steps per sample
-		const auto steps_per_sample = cyclesPerSample * steps_per_cycle;
-		const auto inc = int(steps_per_sample);
-		const auto prev_phase = phase_;
-
-		update_phase(inc, sync);
-		update_sync_value(prev_phase, inc);
-
-		// convert counter to float output range
-		return float(phase_) * cycles_per_step + 0.5f;
+		sync_out_ = -1.0f;
 	}
 };
 
